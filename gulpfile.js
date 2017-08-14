@@ -7,6 +7,7 @@ var gulp = require('gulp'),
     gulpif = require('gulp-if'),
     uglify = require('gulp-uglify'),
     minifyHTML = require('gulp-minify-html'),
+    minifyJSON = require('gulp-jsonminify'),
     compass = require('gulp-compass');
 
 var env,
@@ -36,8 +37,6 @@ jsSources = [
   'components/scripts/template.js'
 ];
 sassSources = ['components/sass/style.scss'];
-htmlSources = [outputDir + '*.html'];
-jsonSources = [outputDir + 'js/*.json'];
 
 gulp.task('coffee', function(){
   gulp.src(coffeeSources)
@@ -75,7 +74,9 @@ gulp.task('html', function(){
 });
 
 gulp.task('json', function(){
-  gulp.src(jsonSources)
+  gulp.src('builds/development/js/*.json')
+    .pipe(gulpif(env === 'production', minifyJSON()))
+    .pipe(gulpif(env === 'production', gulp.dest('builds/production/js')))
     .pipe(connect.reload());
 });
 
@@ -84,7 +85,7 @@ gulp.task('watch', function(){
   gulp.watch(jsSources, ['js']);
   gulp.watch('components/sass/*.scss', ['compass']);
   gulp.watch('builds/development/*.html', ['html']);
-  gulp.watch(jsonSources, ['json']);
+  gulp.watch('builds/development/js/*.json', ['json']);
 });
 
 gulp.task('connect', function(){
@@ -93,7 +94,5 @@ gulp.task('connect', function(){
     livereload: true
   });
 });
-
-
 
 gulp.task('default', ['coffee', 'js', 'compass', 'html', 'json', 'connect', 'watch']);
