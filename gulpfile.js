@@ -1,6 +1,5 @@
 var gulp = require('gulp'),
     gutil = require('gulp-util'),
-    coffee = require('gulp-coffee'),
     browserify = require('gulp-browserify'),
     concat = require('gulp-concat'),
     connect = require('gulp-connect'),
@@ -13,7 +12,6 @@ var gulp = require('gulp'),
     compass = require('gulp-compass');
 
 var env,
-    coffeeSources,
     jsSources,
     sassSources,
     htmlSources,
@@ -31,7 +29,6 @@ if(env==='development'){
   sassStyle = 'compressed';
 }
 
-coffeeSources = ['components/coffee/*.coffee']
 jsSources = [
   'components/scripts/rclick.js',
   'components/scripts/pixgrid.js',
@@ -40,14 +37,7 @@ jsSources = [
 ];
 sassSources = ['components/sass/style.scss'];
 
-gulp.task('coffee', function(){
-  gulp.src(coffeeSources)
-    .pipe(coffee({bare: true})
-      .on('error', gutil.log))
-    .pipe(gulp.dest('components/scripts'))
-});
-
-gulp.task('js', ['coffee'], function(){
+gulp.task('js', function(){
   gulp.src(jsSources)
     .pipe(concat('script.js'))
     .pipe(browserify())
@@ -86,13 +76,6 @@ gulp.task('images', function(){
     .pipe(connect.reload());
 });
 
-gulp.task('json', function(){
-  gulp.src('builds/development/js/*.json')
-    .pipe(gulpif(env === 'production', minifyJSON()))
-    .pipe(gulpif(env === 'production', gulp.dest('builds/production/js')))
-    .pipe(connect.reload());
-});
-
 gulp.task('watch', function(){
   gulp.watch(coffeeSources, ['coffee']);
   gulp.watch(jsSources, ['js']);
@@ -109,4 +92,4 @@ gulp.task('connect', function(){
   });
 });
 
-gulp.task('default', ['coffee', 'js', 'compass', 'images', 'html', 'json', 'connect', 'watch']);
+gulp.task('default', ['js', 'compass', 'images', 'html', 'connect', 'watch']);
